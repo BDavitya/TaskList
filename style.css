@@ -1,0 +1,420 @@
+/* ============================================================
+   TaskList — style.css
+   Primary: Blue (#2563eb)   Accent: Orange (#f97316)
+   Background: White / Light-gray (#f9fafb)
+   ============================================================ */
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Custom scrollbar (WebKit) ────────────────────────────── */
+::-webkit-scrollbar          { width: 5px; height: 5px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: #bfdbfe; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #93c5fd; }
+
+/* ── Global focus ring ────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ============================================================
+   KEYFRAME ANIMATIONS
+   ============================================================ */
+
+/* Modal / card slide-up entrance */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Task card entrance */
+@keyframes taskEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Task card exit */
+@keyframes taskLeave {
+  from { opacity: 1; transform: scale(1);    max-height: 140px; margin-bottom: 12px; }
+  to   { opacity: 0; transform: scale(0.97); max-height: 0;     margin-bottom: 0; padding-top: 0; padding-bottom: 0; }
+}
+
+/* Toast slide-in from right */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* Stats counter fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Class helpers used by JavaScript */
+.anim-task-enter { animation: taskEnter 0.2s  ease both; }
+.anim-task-leave { animation: taskLeave 0.22s ease forwards; overflow: hidden; }
+.anim-fade-in    { animation: fadeIn    0.18s ease both; }
+
+/* ============================================================
+   REUSABLE COMPONENT STYLES
+   ============================================================ */
+
+/* ── Text input / textarea ────────────────────────────────── */
+.task-input {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.task-input::placeholder { color: #94a3b8; }
+
+.task-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  background: #fff;
+}
+
+/* ── Primary button (blue) ────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #2563eb;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+/* ── Ghost button (gray) ──────────────────────────────────── */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* ── Field label ──────────────────────────────────────────── */
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   FILTER BUTTONS  (labels + count pills carry the statistics)
+   ============================================================ */
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #64748b;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover:not(.active) {
+  background: #dbeafe;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.filter-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28);
+}
+
+/* Count pill shown inside each filter button */
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  /* Default (inactive) pill: subtle gray */
+  background: #e2e8f0;
+  color: #64748b;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* Active button: pill inverts to a translucent white */
+.filter-btn.active .filter-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Hover state for inactive button */
+.filter-btn:hover:not(.active) .filter-count {
+  background: #bfdbfe;
+  color: #1d4ed8;
+}
+
+/* ============================================================
+   TASK CARD
+   ============================================================ */
+.task-card {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.task-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+}
+
+/* Completed task: muted appearance */
+.task-card.is-completed {
+  background: #f8fafc;
+}
+
+.task-card.is-completed .task-title {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
+.task-card.is-completed .task-notes-text {
+  color: #cbd5e1;
+}
+
+/* ── Custom checkbox ────────────────────────────────────────── */
+.task-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  margin-top: 1px;
+  background: #fff;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.task-checkbox:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.task-checkbox:checked {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* Checkmark drawn with CSS */
+.task-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 8px;
+  height: 12px;
+  border: 2.5px solid #ffffff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* ── Task text ──────────────────────────────────────────────── */
+.task-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.task-notes-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+/* ── Status badge ────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+/* Active badge: orange accent */
+.badge-active {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+/* Completed badge: green */
+.badge-done {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* ── Action icon buttons ─────────────────────────────────────── */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.icon-btn:hover { background: #f1f5f9; color: #475569; }
+
+/* Delete button gets red on hover */
+.icon-btn.btn-delete:hover { background: #fee2e2; color: #ef4444; }
+
+/* Edit button gets blue on hover */
+.icon-btn.btn-edit:hover { background: #eff6ff; color: #2563eb; }
+
+/* ============================================================
+   EDIT MODAL
+   ============================================================ */
+
+/* Full-screen semi-transparent backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;               /* set by JS via .hidden toggle */
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 16px;
+}
+
+/* White modal card */
+.modal-panel {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+  animation: slideUp 0.22s ease both;
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f172a;
+  color: #f1f5f9;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 200px;
+  max-width: 320px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  pointer-events: all;
+  animation: toastIn 0.22s ease both;
+}
+
+.toast-success { border-left: 4px solid #22c55e; }
+.toast-error   { border-left: 4px solid #ef4444; }
+.toast-info    { border-left: 4px solid #3b82f6; }
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden { display: none !important; }
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+@media (max-width: 480px) {
+  .task-card   { padding: 12px 12px; gap: 10px; }
+  .modal-panel { padding: 20px 16px; }
+}
